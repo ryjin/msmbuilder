@@ -561,8 +561,7 @@ def _transition_counts(sequences, lag_time=1, sliding_window=True):
     none_to_nan = np.vectorize(lambda x: np.nan if x is None else x,
                                otypes=[np.float])
 
-    counts = np.zeros((n_states, n_states), dtype=float)
-    _transitions = []
+    counts = np.zeros((n_states, n_states), dtype=int)
 
     for y in sequences:
         y = np.asarray(y)
@@ -584,12 +583,10 @@ def _transition_counts(sequences, lag_time=1, sliding_window=True):
             from_states = mapping_fn(from_states)
             to_states = mapping_fn(to_states)
 
-        _transitions.append(np.row_stack((from_states, to_states)))
-
-    transitions = np.hstack(_transitions)
-    C = coo_matrix((np.ones(transitions.shape[1], dtype=int), transitions),
+        transitions = np.row_stack((from_states,to_states))
+        C = coo_matrix((np.ones(transitions.shape[1], dtype=int), transitions),
                    shape=(n_states, n_states))
-    counts = counts + np.asarray(C.todense())
+        counts = counts + np.asarray(C.todense())
 
     # If sliding window is False, this function will be called recursively
     # with strided trajectories and lag_time = 1, which gives the desired
@@ -597,6 +594,7 @@ def _transition_counts(sequences, lag_time=1, sliding_window=True):
     # by the "number of windows" (i.e. the lag_time). Count magnitudes
     # will be comparable between sliding-window and non-sliding-window cases.
     # If lag_time = 1, sliding_window makes no difference.
+    counts.astype(float)
     counts /= float(lag_time)
 
     return counts, mapping
