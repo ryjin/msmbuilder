@@ -541,7 +541,7 @@ def _transition_counts(sequences, lag_time=1, sliding_window=True):
         return _transition_counts([X[::lag_time] for X in sequences],
                                   lag_time=1)
 
-    classes = np.unique(np.concatenate(sequences))
+    classes = np.unique(np.concatenate([np.unique(seq) for seq in sequences]))
     contains_nan = (classes.dtype.kind == 'f') and np.any(np.isnan(classes))
     contains_none = any(c is None for c in classes)
 
